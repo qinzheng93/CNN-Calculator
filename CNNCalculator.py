@@ -25,9 +25,10 @@ considered, please modify the code.
 Refer to `MobileNet.py` for details.
 '''
 class CNNCalculator(object):
-    def __init__(self):
+    def __init__(self, all_layer=False):
         self.params = 0
         self.flops = 0
+        self.all_layer = all_layer
 
     def calculate(self, *inputs):
         raise NotImplementedError
@@ -48,30 +49,34 @@ class CNNCalculator(object):
         out_c = tensor.c
         out_h = tensor.h
         out_w = tensor.w
-        self.params += 4 * out_c
-        self.flops += 2 * out_c * out_h * out_w
+        if self.all_layer:
+            self.params += 4 * out_c
+            self.flops += 2 * out_c * out_h * out_w
         return Tensor(out_c, out_h, out_w)
 
     def ReLU(self, tensor):
         out_c = tensor.c
         out_h = tensor.h
         out_w = tensor.w
-        self.flops += out_c * out_h * out_w
+        if self.all_layer:
+            self.flops += out_c * out_h * out_w
         return Tensor(out_c, out_h, out_w)
 
     def AvgPool2d(self, tensor, size, stride=1, padding=0):
         out_c = tensor.c
         out_h = (tensor.h - size + 2 * padding) / stride + 1
         out_w = (tensor.w - size + 2 * padding) / stride + 1
-        # self.flops += out_c * out_h * out_w * size * size
+        if self.all_layer:
+            self.flops += out_c * out_h * out_w * size * size
         return Tensor(out_c, out_h, out_w)
 
     def MaxPool2d(self, tensor, size, stride=1, padding=0):
         out_c = tensor.c
         out_h = (tensor.h - size + 2 * padding) / stride + 1
         out_w = (tensor.w - size + 2 * padding) / stride + 1
-        self.params += out_c * out_h * out_w
-        self.flops += out_c * out_h * out_w * size * size
+        if self.all_layer:
+            self.params += out_c * out_h * out_w
+            self.flops += out_c * out_h * out_w * size * size
         return Tensor(out_c, out_h, out_w)
 
     def Linear(self, tensor, out_c):
@@ -97,7 +102,8 @@ class CNNCalculator(object):
         out_c = tensor.c
         out_h = tensor.h
         out_w = tensor.w
-        self.flops += out_c * out_h * out_w
+        if self.all_layer:
+            self.flops += out_c * out_h * out_w
         return Tensor(out_c, out_h, out_w)
 
     def Add(self, tensor, other):
