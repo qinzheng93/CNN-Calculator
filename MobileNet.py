@@ -20,7 +20,9 @@ class MobileNetCalculator(CNNCalculator):
     def DepthwiseSeparable(self, tensor, out_c, stride):
         in_c = tensor.c
         tensor = self.ConvBN(tensor, in_c, 3, stride=stride, padding=1, groups=in_c)
+        tensor = self.ReLU(tensor)
         tensor = self.ConvBN(tensor, out_c, 1)
+        tensor = self.ReLU(tensor)
         return tensor
 
     '''
