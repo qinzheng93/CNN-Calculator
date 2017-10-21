@@ -9,7 +9,7 @@ class MobileNetCalculator(CNNCalculator):
     '''
     Combination of Conv2d and BatchNorm2d.
     '''
-    def ConvFactory(self, tensor, out_c, size, stride=1, padding=0, groups=1):
+    def ConvBN(self, tensor, out_c, size, stride=1, padding=0, groups=1):
         tensor = self.Conv2d(tensor, out_c, size, stride=stride, padding=padding, groups=groups, bias=False)
         tensor = self.BatchNorm2d(tensor)
         return tensor
@@ -19,8 +19,8 @@ class MobileNetCalculator(CNNCalculator):
     '''
     def DepthwiseSeparable(self, tensor, out_c, stride):
         in_c = tensor.c
-        tensor = self.ConvFactory(tensor, in_c, 3, stride=stride, padding=1, groups=in_c)
-        tensor = self.ConvFactory(tensor, out_c, 1)
+        tensor = self.ConvBN(tensor, in_c, 3, stride=stride, padding=1, groups=in_c)
+        tensor = self.ConvBN(tensor, out_c, 1)
         return tensor
 
     '''
@@ -28,7 +28,7 @@ class MobileNetCalculator(CNNCalculator):
     '''
     def MobileNet(self, tensor):
         width_mul = self.width_mul
-        tensor = self.ConvFactory(tensor, int(32 * width_mul), 3, stride=2, padding=1)
+        tensor = self.ConvBN(tensor, int(32 * width_mul), 3, stride=2, padding=1)
         tensor = self.ReLU(tensor)
 
         tensor = self.DepthwiseSeparable(tensor, int(64 * width_mul), 1)
