@@ -2,8 +2,8 @@ from __future__ import print_function
 from CNNCalculator import Tensor, CNNCalculator
 
 class MobileNetCalculator(CNNCalculator):
-    def __init__(self, width_mul=1):
-        super(MobileNetCalculator, self).__init__()
+    def __init__(self, width_mul=1, all_layer=True):
+        super(MobileNetCalculator, self).__init__(all_layer)
         self.width_mul = width_mul
 
     '''
