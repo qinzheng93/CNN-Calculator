@@ -79,6 +79,14 @@ class CNNCalculator(object):
             self.flops += out_c * out_h * out_w * size * size
         return Tensor(out_c, out_h, out_w)
 
+    def GlobalAvgPool2d(self, tensor):
+        size = tensor.h
+        return self.AvgPool2d(tensor, size)
+
+    def GlobalMaxPool2d(self, tensor):
+        size = tensor.h
+        return self.MaxPool2d(tensor, size)
+
     def Linear(self, tensor, out_c):
         in_c = tensor.c
         out_h = tensor.h
