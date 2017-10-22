@@ -72,7 +72,7 @@ class CNNCalculator(object):
 
         if self.all_layer:
             self.params += 4 * out_c
-            self.flops += 2 * out_c * out_h * out_w
+            self.flops += out_c * out_h * out_w
         return Tensor(out_c, out_h, out_w)
 
 
