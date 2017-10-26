@@ -37,7 +37,7 @@ class CNNCalculator(object):
         raise NotImplementedError
 
 
-    def Conv2d(self, tensor, out_c, size, stride=1, padding=0, groups=1, bias=True):
+    def Conv2d(self, tensor, out_c, size, stride=1, padding=0, groups=1, bias=True, name='conv'):
         if type(size) == int:
             size = (size, size)
         if type(stride) == int:
@@ -65,7 +65,7 @@ class CNNCalculator(object):
         return Tensor(out_c, out_h, out_w)
 
 
-    def BatchNorm2d(self, tensor):
+    def BatchNorm2d(self, tensor, name='batch_norm'):
         out_c = tensor.c
         out_h = tensor.h
         out_w = tensor.w
@@ -76,7 +76,7 @@ class CNNCalculator(object):
         return Tensor(out_c, out_h, out_w)
 
 
-    def ReLU(self, tensor):
+    def ReLU(self, tensor, name='relu'):
         out_c = tensor.c
         out_h = tensor.h
         out_w = tensor.w
@@ -86,7 +86,7 @@ class CNNCalculator(object):
         return Tensor(out_c, out_h, out_w)
 
 
-    def AvgPool2d(self, tensor, size, stride=1, padding=0):
+    def Pool2d(self, tensor, size, stride=1, padding=0, name='pool'):
         if type(size) == int:
             size = (size, size)
         if type(stride) == int:
@@ -108,40 +108,25 @@ class CNNCalculator(object):
         return Tensor(out_c, out_h, out_w)
 
 
-    def MaxPool2d(self, tensor, size, stride=1, padding=0):
-        if type(size) == int:
-            size = (size, size)
-        if type(stride) == int:
-            stride = (stride, stride)
-        if type(padding) == int:
-            padding = (padding, padding)
-        assert type(size) == tuple and len(size) == 2, 'illegal size parameters'
-        assert type(stride) == tuple and len(stride) == 2, 'illegal stride parameters'
-        assert type(padding) == tuple and len(padding) == 2, 'illegal padding parameters'
-        size_h, size_w = size
-        stride_h, stride_w = stride
-        padding_h, padding_w = padding
-
-        out_c = tensor.c
-        out_h = (tensor.h - size_h + 2 * padding_h) / stride_h + 1
-        out_w = (tensor.w - size_w + 2 * padding_w) / stride_w + 1
-        if self.all_layer:
-            self.params += out_c * out_h * out_w
-            self.flops += out_c * out_h * out_w * size_h * size_w
-        return Tensor(out_c, out_h, out_w)
+    def AvgPool2d(self, tensor, size, stride=1, padding=0, name='avg_pool'):
+        return self.Pool2d(tensor, size, stride=stride, padding=padding, name=name)
 
 
-    def GlobalAvgPool2d(self, tensor):
+    def MaxPool2d(self, tensor, size, stride=1, padding=0, name='max_pool'):
+        return self.Pool2d(tensor, size, stride=stride, padding=padding, name=name)
+
+
+    def GlobalAvgPool2d(self, tensor, name='global_avg_pool'):
         size = (tensor.h, tensor.w)
         return self.AvgPool2d(tensor, size)
 
 
-    def GlobalMaxPool2d(self, tensor):
+    def GlobalMaxPool2d(self, tensor, name='global_max_pool'):
         size = (tensor.h, tensor.w)
         return self.MaxPool2d(tensor, size)
 
 
-    def Linear(self, tensor, out_c):
+    def Linear(self, tensor, out_c, name='fully_connected'):
         in_c = tensor.c
         out_h = tensor.h
         out_w = tensor.w
@@ -161,7 +146,7 @@ class CNNCalculator(object):
         return Tensor(out_c, out_h, out_w)
 
 
-    def MultiAdd(self, tensor, other):
+    def MultiAdd(self, tensor, other, name='multi_add'):
         assert tensor.equals(other), 'tensor dimensions mismatch in Add layer.'
         out_c = tensor.c
         out_h = tensor.h
@@ -171,9 +156,9 @@ class CNNCalculator(object):
         return Tensor(out_c, out_h, out_w)
 
 
-    def Add(self, tensor, other):
-        return self.MultiAdd(tensor, other)
+    def Add(self, tensor, other, name='add'):
+        return self.MultiAdd(tensor, other, name=name)
 
 
-    def Multi(self, tensor, other):
-        return self.MultiAdd(tensor, other)
+    def Multi(self, tensor, other, name='multi'):
+        return self.MultiAdd(tensor, other, name=name)
