@@ -136,7 +136,7 @@ class CNNCalculator(object):
         return Tensor(out_c, out_h, out_w)
 
 
-    def Concat(self, *tensors):
+    def Concat(self, tensors, name='concat'):
         out_c = 0
         out_h = tensors[0].h
         out_w = tensors[0].w
@@ -162,3 +162,8 @@ class CNNCalculator(object):
 
     def Multi(self, tensor, other, name='multi'):
         return self.MultiAdd(tensor, other, name=name)
+
+
+    def SplitBySize(self, tensor, sizes, name='split_by_size'):
+        assert sum(sizes) == tensor.c, 'sizes and tensor.c do not match.'
+        return [Tensor(c, tensor.h, tensor.w) for c in sizes]
