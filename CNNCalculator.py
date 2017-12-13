@@ -52,12 +52,12 @@ class CNNCalculator(object):
         padding_h, padding_w = padding
 
         in_c = tensor.c
-        out_h = (tensor.h - size_h + 2 * padding_h) / stride_h + 1
-        out_w = (tensor.w - size_w + 2 * padding_w) / stride_w + 1
+        out_h = (tensor.h - size_h + 2 * padding_h) // stride_h + 1
+        out_w = (tensor.w - size_w + 2 * padding_w) // stride_w + 1
         assert in_c % groups == 0 and out_c % groups == 0, 'in_c and out_c must be divisible by groups'
 
-        self.params += out_c * in_c / groups * size_h * size_w
-        self.flops += out_c * out_h * out_w * in_c / groups * size_h * size_w
+        self.params += out_c * in_c // groups * size_h * size_w
+        self.flops += out_c * out_h * out_w * in_c // groups * size_h * size_w
         if bias:
             self.params += out_c
             self.flops += out_c * out_w * out_h
@@ -101,8 +101,8 @@ class CNNCalculator(object):
         padding_h, padding_w = padding
 
         out_c = tensor.c
-        out_h = (tensor.h - size_h + 2 * padding_h) / stride_h + 1
-        out_w = (tensor.w - size_w + 2 * padding_w) / stride_w + 1
+        out_h = (tensor.h - size_h + 2 * padding_h) // stride_h + 1
+        out_w = (tensor.w - size_w + 2 * padding_w) // stride_w + 1
         if self.all_layer:
             self.flops += out_c * out_h * out_w * size_h * size_w
         return Tensor(out_c, out_h, out_w)

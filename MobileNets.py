@@ -52,5 +52,5 @@ class MobileNetCalculator(CNNCalculator):
         tensor = self.MobileNet(tensor)
         print('params: {}, flops: {}'.format(self.params, self.flops))
 
-calculator = MobileNetCalculator(1)
+calculator = MobileNetCalculator(1, False)
 calculator.calculate()
