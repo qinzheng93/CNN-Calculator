@@ -1,4 +1,4 @@
 *.pyc
 *.py
 !CNNCalculator.py
-!MobileNets.py
+!MobileNet.py

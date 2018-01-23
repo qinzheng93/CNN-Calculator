@@ -12,6 +12,12 @@ class Tensor(object):
         return self.c == other.c and self.h == other.h and self.w == other.w
 
 
+    def broadcastable(self, other):
+        return (self.c % other.c == 0 or other.c % self.c == 0) and \
+               (self.h % other.h == 0 or other.h % self.h == 0) and \
+               (self.w % other.w == 0 or other.w % self.w == 0)
+
+
 '''
 Calculate the single-sample inference-time params and FLOPs of a convolutional
 neural network with PyTorch-like APIs.
@@ -27,10 +33,10 @@ considered, please modify the code.
 Refer to `MobileNet.py` for details.
 '''
 class CNNCalculator(object):
-    def __init__(self, all_layer=False):
+    def __init__(self, only_mac=False):
         self.params = 0
         self.flops = 0
-        self.all_layer = all_layer
+        self.only_mac = only_mac
 
 
     def calculate(self, *inputs):
@@ -66,14 +72,16 @@ class CNNCalculator(object):
 
 
     def BatchNorm2d(self, tensor, name='batch_norm'):
-        out_c = tensor.c
-        out_h = tensor.h
-        out_w = tensor.w
+        return tensor
+        # Batch normalization can be combined with the preceding convolution, so there are no FLOPs.
+        # out_c = tensor.c
+        # out_h = tensor.h
+        # out_w = tensor.w
 
-        if self.all_layer:
-            self.params += 4 * out_c
-            self.flops += out_c * out_h * out_w
-        return Tensor(out_c, out_h, out_w)
+        # if self.only_mac:
+            # self.params += 4 * out_c
+            # self.flops += out_c * out_h * out_w
+        # return Tensor(out_c, out_h, out_w)
 
 
     def ReLU(self, tensor, name='relu'):
@@ -81,7 +89,17 @@ class CNNCalculator(object):
         out_h = tensor.h
         out_w = tensor.w
 
-        if self.all_layer:
+        if self.only_mac:
+            self.flops += out_c * out_h * out_w
+        return Tensor(out_c, out_h, out_w)
+
+
+    def Sigmoid(self, tensor, name='relu'):
+        out_c = tensor.c
+        out_h = tensor.h
+        out_w = tensor.w
+
+        if self.only_mac:
             self.flops += out_c * out_h * out_w
         return Tensor(out_c, out_h, out_w)
 
@@ -103,7 +121,7 @@ class CNNCalculator(object):
         out_c = tensor.c
         out_h = (tensor.h - size_h + 2 * padding_h) // stride_h + 1
         out_w = (tensor.w - size_w + 2 * padding_w) // stride_w + 1
-        if self.all_layer:
+        if self.only_mac:
             self.flops += out_c * out_h * out_w * size_h * size_w
         return Tensor(out_c, out_h, out_w)
 
@@ -147,11 +165,11 @@ class CNNCalculator(object):
 
 
     def MultiAdd(self, tensor, other, name='multi_add'):
-        assert tensor.equals(other), 'tensor dimensions mismatch in Add layer.'
+        assert tensor.broadcastable(other), 'tensor dimensions mismatch in Add layer.'
         out_c = tensor.c
         out_h = tensor.h
         out_w = tensor.w
-        if self.all_layer:
+        if self.only_mac:
             self.flops += out_c * out_h * out_w
         return Tensor(out_c, out_h, out_w)
 
