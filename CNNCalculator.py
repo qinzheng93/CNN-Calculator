@@ -89,7 +89,7 @@ class CNNCalculator(object):
         out_h = tensor.h
         out_w = tensor.w
 
-        if self.only_mac:
+        if not self.only_mac:
             self.flops += out_c * out_h * out_w
         return Tensor(out_c, out_h, out_w)
 
@@ -99,7 +99,7 @@ class CNNCalculator(object):
         out_h = tensor.h
         out_w = tensor.w
 
-        if self.only_mac:
+        if not self.only_mac:
             self.flops += out_c * out_h * out_w
         return Tensor(out_c, out_h, out_w)
 
@@ -121,7 +121,7 @@ class CNNCalculator(object):
         out_c = tensor.c
         out_h = (tensor.h - size_h + 2 * padding_h) // stride_h + 1
         out_w = (tensor.w - size_w + 2 * padding_w) // stride_w + 1
-        if self.only_mac:
+        if not self.only_mac:
             self.flops += out_c * out_h * out_w * size_h * size_w
         return Tensor(out_c, out_h, out_w)
 
@@ -169,7 +169,7 @@ class CNNCalculator(object):
         out_c = tensor.c
         out_h = tensor.h
         out_w = tensor.w
-        if self.only_mac:
+        if not self.only_mac:
             self.flops += out_c * out_h * out_w
         return Tensor(out_c, out_h, out_w)
 
